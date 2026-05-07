@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AFD — Simulador Visual · Documentação</title>
+  <style>
+    :root {
+      --bg:       #080e26; --bg2: #0b1332; --bg3: #111c44;
+      --border:   #2c4078; --border2: #4e6cb6;
+      --text:     #eef2ff; --muted: #94a2c3;
+      --cyan:     #56b6c2; --cyan2: #a8dce4;
+      --green:    #98c379; --green2: #c6e8aa;
+      --red:      #e06c75; --red2: #f8bcbc;
+      --amber:    #fbbf24; --orange: #d1823c;
+      --blue-card:#0e2055;
+      --p1: #7c5cbf; --p2: #3b82c4; --p3: #2da89a; --p4: #c47c3b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.7; padding: 48px 24px 80px; }
+    .page { max-width: 900px; margin: 0 auto; }
+
+    header { border-bottom: 2px solid var(--border2); padding-bottom: 20px; margin-bottom: 40px; }
+    header h1 { font-size: 1.8rem; font-weight: 700; color: var(--cyan2); }
+    header .sub { color: var(--muted); font-size: .88rem; margin-top: 6px; }
+
+    /* pessoa sections */
+    .pessoa { margin-bottom: 64px; }
+    .pessoa-header {
+      display: flex; align-items: center; gap: 14px;
+      border-left: 4px solid var(--p-color);
+      padding: 14px 18px; margin-bottom: 28px;
+      background: color-mix(in srgb, var(--p-color) 8%, var(--bg2));
+      border-radius: 0 10px 10px 0;
+    }
+    .pessoa-badge {
+      background: var(--p-color); color: #fff;
+      font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+      padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+    }
+    .pessoa-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .pessoa-sub   { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+
+    .p1 { --p-color: var(--p1); }
+    .p2 { --p-color: var(--p2); }
+    .p3 { --p-color: var(--p3); }
+    .p4 { --p-color: var(--p4); }
+
+    h2 { font-size: 1rem; font-weight: 700; color: var(--amber); border-left: 3px solid var(--amber); padding-left: 10px; margin: 28px 0 14px; }
+    h3 { font-size: .92rem; font-weight: 600; color: var(--cyan); margin: 18px 0 8px; }
+    p  { margin-bottom: 10px; }
+    strong { color: var(--cyan2); }
+
+    blockquote { background: var(--bg3); border-left: 3px solid var(--cyan); border-radius: 0 6px 6px 0; padding: 10px 16px; margin: 12px 0; font-family: 'Courier New', monospace; color: var(--cyan2); }
+
+    .table-wrap { overflow-x: auto; margin: 12px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--bg3); }
+    th { padding: 9px 14px; text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 8px 14px; border-bottom: 1px solid var(--border); }
+    td.c, th.c { text-align: center; }
+    tbody tr:hover { background: var(--bg2); }
+    .ok  { background:#1a3a1a; color:var(--green2); border:1px solid var(--green); border-radius:4px; padding:1px 8px; font-size:.78rem; font-weight:700; }
+    .no  { background:#3a1a1a; color:var(--red2);   border:1px solid var(--red);   border-radius:4px; padding:1px 8px; font-size:.78rem; font-weight:700; }
+    td code, p code, li code { background:var(--bg3); color:var(--cyan); border:1px solid var(--border); border-radius:4px; padding:1px 6px; font-family:'Courier New',monospace; font-size:.86em; }
+
+    pre { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; overflow-x:auto; margin:12px 0; }
+    pre code { background:none; border:none; padding:0; color:var(--text); font-family:'Courier New',monospace; font-size:.85rem; line-height:1.65; }
+    .kw { color:#c678dd; } .str { color:var(--green); } .cm { color:var(--muted); font-style:italic; } .nb { color:var(--cyan); } .n { color:var(--amber); }
+
+    .states-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin:12px 0; }
+    .sc { background:var(--blue-card); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+    .sc.final { border-color: var(--green); }
+    .sc .lbl { font-family:'Courier New',monospace; font-size:1.1rem; font-weight:700; color:var(--amber); margin-bottom:4px; }
+    .sc.final .lbl { color:var(--green); }
+    .sc .desc { font-size:.8rem; color:var(--muted); line-height:1.4; }
+
+    .diagram { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:20px 24px; margin:12px 0; overflow-x:auto; }
+    .diagram pre { background:none; border:none; padding:0; margin:0; font-size:.9rem; color:var(--cyan2); }
+    .legend { color:var(--muted); font-size:.8rem; margin-top:8px; }
+
+    .flow { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:12px 0; font-family:'Courier New',monospace; font-size:.84rem; color:var(--text); line-height:1.7; overflow-x:auto; }
+
+    .complexity { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:12px 0; }
+    .cbox { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+    .cbox .val { font-family:'Courier New',monospace; font-size:1rem; font-weight:700; color:var(--cyan); }
+    .cbox .lbl { font-size:.75rem; color:var(--muted); margin-top:3px; }
+
+    .callout { background:#1a1206; border:1px solid #7a5c10; border-radius:8px; padding:10px 14px; margin:10px 0; font-size:.86rem; color:#fde68a; }
+    .arch { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:12px 0; }
+    .arch .mod { display:flex; gap:10px; align-items:flex-start; margin-bottom:8px; }
+    .arch .mod:last-child { margin-bottom:0; }
+    .arch .mname { font-family:'Courier New',monospace; color:var(--amber); font-size:.88rem; min-width:110px; }
+    .arch .mdesc { color:var(--muted); font-size:.84rem; }
+
+    .proof { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:12px 0; }
+    .proof .thm { color:var(--cyan2); margin-bottom:10px; font-size:.92rem; }
+    .proof li { color:var(--muted); font-size:.86rem; margin-bottom:4px; }
+    ul.plain { padding-left:20px; }
+    ul.plain li { margin-bottom:4px; }
+
+    .attr-table td:first-child { font-family:'Courier New',monospace; color:var(--amber); font-size:.86rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>AFD — Simulador Visual</h1>
+  <div class="sub">Trabalho 1 — Autômatos &nbsp;·&nbsp; Documentação de apresentação &nbsp;·&nbsp; 4 apresentadores</div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════ PESSOA 1 -->
+<section class="pessoa p1">
+  <div class="pessoa-header">
+    <div>
+      <span class="pessoa-badge">PESSOA 1</span>
+      <div class="pessoa-title">Teoria e Definição Formal</div>
+      <div class="pessoa-sub">Linguagem · 5-upla · Tabela δ · Diagrama · Prova · Complexidade</div>
+    </div>
+  </div>
+
+  <h2>1.1 Linguagem Reconhecida</h2>
+  <blockquote>L = { w ∈ {a,b}* | w contém a substring "aaa" }</blockquote>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Palavra</th><th>Resultado</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td><code>aaab</code></td><td><span class="ok">ACEITA</span></td><td>contém "aaa"</td></tr>
+      <tr><td><code>baaab</code></td><td><span class="ok">ACEITA</span></td><td>contém "aaa"</td></tr>
+      <tr><td><code>baabaaab</code></td><td><span class="ok">ACEITA</span></td><td>contém "aaa"</td></tr>
+      <tr><td><code>aabaa</code></td><td><span class="no">REJEITA</span></td><td>máx. 2 'a' consecutivos</td></tr>
+      <tr><td><code>bb</code></td><td><span class="no">REJEITA</span></td><td>nenhum 'a'</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>1.2 Definição Formal — 5-upla M = (Q, Σ, δ, q₀, F)</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Componente</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Q (estados)</td><td><code>{ q0, q1, q2, q3 }</code></td></tr>
+      <tr><td>Σ (alfabeto)</td><td><code>{ a, b }</code></td></tr>
+      <tr><td>δ (função de transição)</td><td>tabela abaixo</td></tr>
+      <tr><td>q₀ (estado inicial)</td><td><code>q0</code></td></tr>
+      <tr><td>F (estados finais)</td><td><code>{ q3 }</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>1.3 Função de Transição δ</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th class="c">Estado</th><th class="c">a</th><th class="c">b</th></tr></thead>
+    <tbody>
+      <tr><td class="c"><code>q0</code></td><td class="c"><code>q1</code></td><td class="c"><code>q0</code></td></tr>
+      <tr><td class="c"><code>q1</code></td><td class="c"><code>q2</code></td><td class="c"><code>q0</code></td></tr>
+      <tr><td class="c"><code>q2</code></td><td class="c"><strong><code>q3</code></strong></td><td class="c"><code>q0</code></td></tr>
+      <tr><td class="c"><code>q3</code></td><td class="c"><code>q3</code></td><td class="c"><code>q3</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>1.4 Semântica dos Estados</h2>
+  <div class="states-grid">
+    <div class="sc"><div class="lbl">q0</div><div class="desc">Estado inicial — nenhum 'a' consecutivo acumulado</div></div>
+    <div class="sc"><div class="lbl">q1</div><div class="desc">Leu exatamente 1 'a' consecutivo</div></div>
+    <div class="sc"><div class="lbl">q2</div><div class="desc">Leu exatamente 2 'a' consecutivos</div></div>
+    <div class="sc final"><div class="lbl">q3 ★</div><div class="desc">Estado final — encontrou "aaa". Toda extensão é aceita.</div></div>
+  </div>
+  <div class="callout"><strong>Invariante:</strong> q3 é um estado de absorção. Qualquer símbolo lido em q3 mantém o autômato em q3.</div>
+
+  <h2>1.5 Diagrama de Transições</h2>
+  <div class="diagram">
+    <pre>         b              b              b
+    ┌──────┐       ┌──────┐       ┌──────┐
+    ↓      │       ↓      │       ↓      │
+→  [q0] ──a──→ [q1] ──a──→ [q2] ──a──→ ((q3))
+    ↑      │    │           │               │ a,b
+    └──────┘    └───b───────┘               └──┘</pre>
+    <div class="legend"><code>→</code> estado inicial &nbsp;·&nbsp; <code>(())</code> estado final</div>
+  </div>
+
+  <h2>1.6 Prova de Correção</h2>
+  <div class="proof">
+    <div class="thm"><strong>Teorema:</strong> M aceita w ↔ w contém "aaa".</div>
+    <ul class="plain">
+      <li><strong style="color:var(--cyan)">(→)</strong> Se w contém "aaa", δ percorre q0→q1→q2→q3 no ponto da ocorrência. q3 é armadilha: qualquer sufixo mantém o estado. Logo w é aceita.</li>
+      <li><strong style="color:var(--cyan)">(←)</strong> Se M aceita w, o estado final é q3. O único caminho até q3 é via (q2, a)→q3, que exige q1→q2 antes, logo q0→q1→q2→q3 — três 'a' consecutivos ocorreram.</li>
+    </ul>
+  </div>
+
+  <h2>1.7 Complexidade e Minimalidade</h2>
+  <div class="complexity">
+    <div class="cbox"><div class="val">4</div><div class="lbl">Estados</div></div>
+    <div class="cbox"><div class="val">8</div><div class="lbl">Transições</div></div>
+    <div class="cbox"><div class="val">O(n)</div><div class="lbl">Tempo de reconhecimento</div></div>
+    <div class="cbox"><div class="val">O(1)</div><div class="lbl">Espaço</div></div>
+  </div>
+  <p>O AFD é <strong>minimal</strong>: q0, q1, q2 e q3 são par-a-par distinguíveis. Nenhum estado pode ser fundido.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ PESSOA 2 -->
+<section class="pessoa p2">
+  <div class="pessoa-header">
+    <div>
+      <span class="pessoa-badge">PESSOA 2</span>
+      <div class="pessoa-title">Núcleo do AFD</div>
+      <div class="pessoa-sub"><code>config.py</code> · <code>automato.py</code> — estruturas de dados, lógica de simulação e modo arquivo</div>
+    </div>
+  </div>
+
+  <h2>2.1 <code>config.py</code> — Estruturas de Dados</h2>
+  <p>Toda a definição matemática do AFD vive aqui como estruturas Python nativas:</p>
+  <pre><code><span class="nb">TRANSICOES</span> = {
+    (<span class="str">"q0"</span>, <span class="str">"a"</span>): <span class="str">"q1"</span>,  (<span class="str">"q0"</span>, <span class="str">"b"</span>): <span class="str">"q0"</span>,
+    (<span class="str">"q1"</span>, <span class="str">"a"</span>): <span class="str">"q2"</span>,  (<span class="str">"q1"</span>, <span class="str">"b"</span>): <span class="str">"q0"</span>,
+    (<span class="str">"q2"</span>, <span class="str">"a"</span>): <span class="str">"q3"</span>,  (<span class="str">"q2"</span>, <span class="str">"b"</span>): <span class="str">"q0"</span>,
+    (<span class="str">"q3"</span>, <span class="str">"a"</span>): <span class="str">"q3"</span>,  (<span class="str">"q3"</span>, <span class="str">"b"</span>): <span class="str">"q3"</span>,
+}</code></pre>
+  <p>δ é um dicionário <code>(estado, símbolo) → estado</code>. Consulta em <strong>O(1)</strong>.</p>
+  <p>Constantes de temporização que controlam o ritmo da simulação:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Constante</th><th>Valor</th><th>Papel</th></tr></thead>
+    <tbody>
+      <tr><td><code>DURACAO_TRANSICAO</code></td><td>1050 ms</td><td>Duração de cada passo animado</td></tr>
+      <tr><td><code>PAUSA_INICIO</code></td><td>400 ms</td><td>Espera antes de executar sentença em modo arquivo</td></tr>
+      <tr><td><code>PAUSA_RESULTADO</code></td><td>1100 ms</td><td>Tempo exibindo resultado antes de avançar</td></tr>
+      <tr><td><code>BADGE_REGISTRO_W</code></td><td>120 px</td><td>Largura dos badges do histórico (compartilhada entre módulos)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>2.2 <code>automato.py</code> — Atributos da Classe</h2>
+  <p><strong>Modo manual:</strong></p>
+  <div class="table-wrap"><table class="attr-table">
+    <thead><tr><th>Atributo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>palavra</td><td>String digitada pelo usuário</td></tr>
+      <tr><td>cursor</td><td>Posição do cursor de edição</td></tr>
+      <tr><td>estado_atual</td><td>Estado corrente do AFD</td></tr>
+      <tr><td>indice</td><td>Posição do símbolo sendo processado</td></tr>
+      <tr><td>executando</td><td>Flag: simulação em andamento</td></tr>
+      <tr><td>resultado</td><td><code>"ACEITA"</code> | <code>"REJEITA"</code> | <code>""</code></td></tr>
+      <tr><td>visitados</td><td>Estados já visitados (highlight visual)</td></tr>
+      <tr><td>animacao</td><td>Dicionário com metadados da transição em curso</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Modo arquivo (adicionais):</strong></p>
+  <div class="table-wrap"><table class="attr-table">
+    <thead><tr><th>Atributo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>fila</td><td>Lista de palavras lidas do arquivo .txt</td></tr>
+      <tr><td>indice_fila</td><td>Índice da sentença atual</td></tr>
+      <tr><td>modo_arquivo</td><td>Flag: auto-play ativo</td></tr>
+      <tr><td>historico</td><td>Lista de <code>(palavra, resultado)</code> já processados</td></tr>
+      <tr><td>concluido</td><td>True após última sentença — congela o loop</td></tr>
+      <tr><td>tempo_carregado</td><td>Timestamp para a pausa de início</td></tr>
+      <tr><td>tempo_resultado</td><td>Timestamp para a pausa após resultado</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><strong>Padrão de reset:</strong> <code>__init__</code> e <code>reset_manual</code> chamam o mesmo método privado <code>_reset()</code> — zero duplicação de código.</div>
+
+  <h2>2.3 Ciclo de Execução — Modo Manual</h2>
+  <div class="flow">ENTER pressionado
+    ↓
+iniciar_execucao(agora)
+  estado_atual = "q0", indice = 0, executando = True
+    ↓
+Loop 60 FPS → atualizar(agora):
+  ┌─ animacao is None → _iniciar_proxima_transicao()
+  │     simbolo = palavra[indice]
+  │     destino = TRANSICOES[(estado_atual, simbolo)]
+  │     animacao = { origem, simbolo, destino, inicio }
+  └─ animação em curso → aguarda 1050ms
+        ↓ tempo esgotado
+        estado_atual = destino
+        visitados.add(estado_atual)
+        indice += 1,  animacao = None
+    ↓
+indice == len(palavra)
+  → resultado = "ACEITA" se estado_atual == "q3" senão "REJEITA"</div>
+
+  <h2>2.4 Ciclo de Execução — Modo Arquivo (Auto-play)</h2>
+  <div class="flow">carregar_arquivo(caminho)
+  lê linhas → fila = ["aaab", "baaab", ...]
+  indice_fila = 0 → _carregar_palavra_atual()
+    ↓
+atualizar(agora) — verificações por ordem:
+
+  if concluido → return              ← congela tudo
+
+  [AGUARDANDO INÍCIO]
+  tempo_carregado is None → registra timestamp
+  elapsed >= 400ms → iniciar_execucao(agora)
+
+  [EXECUTANDO] — mesmo ciclo do modo manual
+
+  [RESULTADO EXIBIDO]
+  tempo_resultado is None → registra timestamp
+                          → historico.append((palavra, resultado))
+  elapsed >= 1100ms → avancar_fila()
+    ├─ tem próxima → _carregar_palavra_atual() → repete
+    └─ última → concluido = True</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ PESSOA 3 -->
+<section class="pessoa p3">
+  <div class="pessoa-header">
+    <div>
+      <span class="pessoa-badge">PESSOA 3</span>
+      <div class="pessoa-title">Geometria e Animação</div>
+      <div class="pessoa-sub"><code>geometry.py</code> — Bézier · easing · interpolação de cores · cabeça de seta</div>
+    </div>
+  </div>
+
+  <h2>3.1 Responsabilidade do Módulo</h2>
+  <p><code>geometry.py</code> calcula <strong>onde</strong> e <strong>como</strong> os elementos se movem. Não renderiza nada — devolve apenas pontos e cores para <code>ui.py</code> usar.</p>
+
+  <h2>3.2 Curva de Bézier Cúbica</h2>
+  <p>Cada aresta do diagrama é uma curva paramétrica com 4 pontos de controle:</p>
+  <pre><code>B(t) = (1-t)³P₀ + 3(1-t)²tP₁ + 3(1-t)t²P₂ + t³P₃,  t ∈ [0,1]</code></pre>
+  <p><code>caminho_transicao(origem, simbolo)</code> seleciona P1 e P2 por tipo:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Transição</th><th>Curvatura</th></tr></thead>
+    <tbody>
+      <tr><td>Transições <code>a</code> (q0→q1, q1→q2, q2→q3)</td><td>Arco suave para frente</td></tr>
+      <tr><td><code>b</code> de q1 → q0</td><td>Arco médio abaixo</td></tr>
+      <tr><td><code>b</code> de q2 → q0</td><td>Arco largo abaixo</td></tr>
+      <tr><td>q0→q0 e q3→q3 (self-loops)</td><td>Loop sobre o próprio estado</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>3.3 Função de Easing (smoothstep)</h2>
+  <pre><code>ease(t) = t² · (3 − 2t)</code></pre>
+  <p>Aplicada sobre <code>t</code> antes de localizar o token na curva. O token <strong>parte devagar, acelera no meio e desacelera no fim</strong> — movimento natural ao olho humano.</p>
+
+  <h2>3.4 Localização do Token na Curva</h2>
+  <p><code>ponto_no_caminho(pontos, t)</code>: divide a curva em segmentos, calcula o comprimento total e percorre até a fração <code>ease(t)</code>:</p>
+  <pre><code>alvo = ease(t) * comprimento_total
+<span class="cm"># percorre segmentos somando comprimentos até atingir alvo</span>
+<span class="cm"># interpola linearmente dentro do segmento final</span></code></pre>
+
+  <h2>3.5 Cabeça de Seta</h2>
+  <p><code>pontos_cabeca_seta(fim, anterior, tamanho=13)</code> usa trigonometria:</p>
+  <pre><code>angulo  = atan2(fim.y - anterior.y, fim.x - anterior.x)
+ponta_1 = fim - tamanho · (cos(angulo - 0.48), sin(angulo - 0.48))
+ponta_2 = fim - tamanho · (cos(angulo + 0.48), sin(angulo + 0.48))</code></pre>
+
+  <h2>3.6 Interpolação Linear de Cores</h2>
+  <pre><code>misturar(cor_a, cor_b, t) = cor_a + (cor_b − cor_a) · t</code></pre>
+  <p>Usada para animar o fundo dos estados durante a transição — origem e destino pulsam suavemente enquanto o token se move.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ PESSOA 4 -->
+<section class="pessoa p4">
+  <div class="pessoa-header">
+    <div>
+      <span class="pessoa-badge">PESSOA 4</span>
+      <div class="pessoa-title">Arquitetura e Loop Principal</div>
+      <div class="pessoa-sub"><code>main.py</code> — loop de eventos · estado da aplicação · fluxo end-to-end</div>
+    </div>
+  </div>
+
+  <h2>4.1 Visão Geral da Arquitetura</h2>
+  <div class="arch">
+    <div class="mod"><div class="mname">main.py</div><div class="mdesc">Coordena tudo: estado da aplicação, loop de eventos, chama automato e interface</div></div>
+    <div class="mod"><div class="mname">automato.py</div><div class="mdesc">Lógica pura do AFD — independente de Pygame e de UI</div></div>
+    <div class="mod"><div class="mname">config.py</div><div class="mdesc">Constantes e estruturas de dados compartilhadas entre todos os módulos</div></div>
+    <div class="mod"><div class="mname">geometry.py</div><div class="mdesc">Algoritmos geométricos — não conhece o autômato nem renderiza nada</div></div>
+    <div class="mod"><div class="mname">ui.py</div><div class="mdesc">Renderização — recebe dados prontos, não toma decisões de lógica</div></div>
+  </div>
+
+  <h2>4.2 Estado da Aplicação</h2>
+  <pre><code>automato = AutomatoSimulator()  <span class="cm"># estado completo do AFD</span>
+focado   = True                 <span class="cm"># campo de texto com foco</span>
+
+seletor = {                     <span class="cm"># overlay de seleção de arquivo</span>
+    <span class="str">"aberto"</span>: False,
+    <span class="str">"arquivos"</span>: [],   <span class="cm"># lista de .txt encontrados</span>
+    <span class="str">"hover"</span>: -1,      <span class="cm"># linha sob o mouse</span>
+}
+registro = {                    <span class="cm"># scroll do histórico visual</span>
+    <span class="str">"scroll_x"</span>: 0,
+    <span class="str">"drag"</span>: False,
+    <span class="str">"drag_start_x"</span>: 0,
+    <span class="str">"drag_scroll_start"</span>: 0,
+}</code></pre>
+
+  <h2>4.3 Loop Principal (60 FPS)</h2>
+  <pre><code><span class="kw">while</span> True:
+    focado = processar_eventos(automato, focado, seletor, registro)
+    automato.atualizar(pygame.time.get_ticks())
+    interface.desenhar(automato, focado, seletor, registro[<span class="str">"scroll_x"</span>])
+    pygame.display.flip()
+    clock.tick(<span class="n">60</span>)</code></pre>
+  <p>Cada frame: captura eventos → avança estado → renderiza → exibe na tela.</p>
+
+  <h2>4.4 Hierarquia de Prioridade de Eventos</h2>
+  <div class="flow">processar_eventos():
+  1. QUIT            → pygame.quit() + sys.exit()
+  2. concluido       → apenas botões da tela de conclusão → continue
+  3. seletor.aberto  → hover / clique em linha / ESC → continue
+  4. drag registro   → MOUSEBUTTONUP, MOUSEMOTION
+  5. modo normal     → clique no botão arquivo / campo de texto
+  6. KEYDOWN         → ESC, ENTER, BACKSPACE, setas, a/b</div>
+  <p>Cada camada usa <code>continue</code> para ignorar os eventos que não lhe pertencem.</p>
+
+  <h2>4.5 Scroll do Registro</h2>
+  <pre><code>_clamp_scroll(automato, registro):
+    visivel    = LARGURA_CANVAS - 32          <span class="cm"># 716 px visíveis</span>
+    total      = len(fila) * BADGE_REGISTRO_W <span class="cm"># n × 120 px</span>
+    max_scroll = max(0, total - visivel)
+    scroll_x   = clamp(scroll_x, 0, max_scroll)</code></pre>
+  <p>Se <code>total ≤ visivel</code>: badges centralizados, sem scroll. Se <code>total &gt; visivel</code>: drag horizontal ativo, scrollbar exibida.</p>
+
+  <h2>4.6 Fluxo Completo End-to-End</h2>
+  <div class="flow">Inicialização → modo manual
+
+[MODO MANUAL]
+  Digita a/b → ENTER → animação passo a passo → resultado
+    ↓
+  Clica "Abrir arquivo"
+
+[SELETOR]
+  Lista .txt do diretório do script
+  Clica arquivo → carregar_arquivo(caminho)
+    ↓
+[MODO ARQUIVO — AUTO-PLAY]
+  Para cada sentença na fila:
+    pausa 400ms
+    → executa com animação passo a passo
+    → exibe resultado
+    → pausa 1100ms
+    → badge: âmbar (atual) → verde/vermelho (processado)
+    ↓
+  Última sentença concluída → concluido = True
+
+[TELA DE CONCLUSÃO]
+  Resumo: N aceitas / M rejeitadas
+  [ Reiniciar simulador ] → _reset() → volta ao modo manual
+  [ Fechar simulador    ] → sys.exit()</div>
+</section>
+
+</div>
+</body>
+</html>

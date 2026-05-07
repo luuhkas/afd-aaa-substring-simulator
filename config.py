@@ -1,6 +1,9 @@
 LARGURA, ALTURA = 1180, 720
 FPS = 60
 DURACAO_TRANSICAO = 1050
+PAUSA_INICIO      = 400   # ms antes de iniciar execução automática
+PAUSA_RESULTADO   = 1100  # ms exibindo resultado antes de avançar
+BADGE_REGISTRO_W  = 120   # largura dos badges do registro
 
 LARGURA_CANVAS = 748
 LARGURA_PAINEL = 432  # LARGURA - LARGURA_CANVAS
